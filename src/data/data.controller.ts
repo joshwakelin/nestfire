@@ -108,4 +108,21 @@ export class DataController {
       throw new Error('Error querying data from Firestore');
     }
   }
+
+  @Get(':collection/range')
+  async getDataInRange(
+    @Param('collection') collection: string,
+    @Query('field') field: string,
+    @Query('operator') operator: FirebaseFirestore.WhereFilterOp,
+    @Query('value') value: any
+  ): Promise<any[]> {
+    try {
+      const snapshot = await Firestore.collection(collection).where(field, operator, value).get();
+      const data = snapshot.docs.map(doc => doc.data());
+      return data;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Error querying data in range from Firestore');
+    }
+  }
 }
