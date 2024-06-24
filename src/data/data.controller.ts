@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Delete, Param, Body, NotFoundException, Query } from '@nestjs/common';
-import { Firestore } from '../firestore.service';
+import { Firestore } from '../firestore.service'; // Replace with your actual Firestore import
 
 @Controller('data')
 export class DataController {
@@ -36,15 +36,17 @@ export class DataController {
     }
   }
 
-  @Post(':collection')
-  async create(@Param('collection') collection: string, @Body() data: any): Promise<any> {
+  @Post(':collection/:id')
+  async create(@Param('collection') collection: string, @Param('id') id: string, @Body() data: any): Promise<any> {
     try {
-      const docRef = await Firestore.collection(collection).add(data);
-      const doc = await docRef.get();
-      return {
-        id: doc.id,
-        ...doc.data()
+      await Firestore.collection(collection).doc(id).set(data);
+            const docSnapshot = await Firestore.collection(collection).doc(id).get();
+      const responseData = {
+        id: docSnapshot.id,
+        ...docSnapshot.data()
       };
+
+      return responseData;
     } catch (error) {
       console.error(error);
       throw new Error('Error creating document in Firestore');
@@ -113,11 +115,11 @@ export class DataController {
   async getDataInRange(
     @Param('collection') collection: string,
     @Query('field') field: string,
-    @Query('operator') operator: FirebaseFirestore.WhereFilterOp,
+    @Query('operator') operator: string, // Make sure operator type is properly defined
     @Query('value') value: any
   ): Promise<any[]> {
     try {
-      const snapshot = await Firestore.collection(collection).where(field, operator, value).get();
+      const snapshot = await Firestore.collection(collection).where(field, operator as FirebaseFirestore.WhereFilterOp, value).get();
       const data = snapshot.docs.map(doc => doc.data());
       return data;
     } catch (error) {
