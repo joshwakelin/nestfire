@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Delete, Param, Body, NotFoundException, Query } from '@nestjs/common';
-import { Firestore } from '../firestore.service'; // Replace with your actual Firestore import
+import { Firestore } from '../firestore.service';
 
 @Controller('data')
 export class DataController {
